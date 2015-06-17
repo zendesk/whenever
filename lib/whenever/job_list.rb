@@ -4,12 +4,14 @@ module Whenever
 
     def initialize(options)
       @jobs, @env, @set_variables, @pre_set_variables = {}, {}, {}, {}
+      @environment_exports = []
 
       if options.is_a? String
         options = { :string => options }
       end
 
       pre_set(options[:set])
+      environment(options[:env])
 
       @roles = options[:roles] || []
 
@@ -54,6 +56,7 @@ module Whenever
           options[:output] = (options[:cron_log] || @cron_log) if defined?(@cron_log) || options.has_key?(:cron_log)
           # :output is the newer, more flexible option.
           options[:output] = @output if defined?(@output) && !options.has_key?(:output)
+          options[:environment_exports] = @environment_exports.length > 0 ? @environment_exports.join("; ") << "; " : ""
 
           @jobs[@current_time_scope] ||= []
           @jobs[@current_time_scope] << Whenever::Job.new(@options.merge(@set_variables).merge(options))
@@ -96,6 +99,21 @@ module Whenever
           @pre_set_variables[variable] = value
         end
       end
+    end
+
+    def environment(environment_string = nil)
+      return if environment_string.nil? || environment_string == ""
+
+      exports = []
+      pairs = environment_string.split('&')
+      pairs.each do |pair|
+        next unless pair.index('=')
+        variable, value = *pair.split('=')
+        unless variable.nil? || variable == "" || value.nil? || value == ""
+          exports << "export #{variable}=#{value.inspect}"
+        end
+      end
+      @environment_exports = exports
     end
 
     def environment_variables

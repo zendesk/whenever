@@ -23,6 +23,9 @@ OptionParser.new do |opts|
   opts.on('-s', '--set [variables]', 'Example: --set \'environment=staging&path=/my/sweet/path\'') do |set|
     options[:set] = set if set
   end
+  opts.on('-e', '--env [variables]', 'Example: --env \'PATH=/usr/local/bin&LC_ALL=en_US.UTF8\'') do |set|
+    options[:env] = set if set
+  end
   opts.on('-f', '--load-file [schedule file]', 'Default: config/schedule.rb') do |file|
     options[:file] = file if file
   end
