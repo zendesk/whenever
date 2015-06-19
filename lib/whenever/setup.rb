@@ -10,15 +10,15 @@ set :path, Whenever.path
 set :job_template, "/bin/bash -l -c ':environment_exports:job'"
 
 set :runner_command, case
-  when Whenever.bin_rails?
+  when Whenever.bin_rails?(@path)
     "bin/rails runner"
-  when Whenever.script_rails?
+  when Whenever.script_rails?(@path)
     "script/rails runner"
   else
     "script/runner"
   end
 
-set :bundle_command, Whenever.bundler? ? "bundle exec" : ""
+set :bundle_command, Whenever.bundler?(@path) ? "bundle exec" : ""
 
 job_type :command, ":task :output"
 job_type :rake,    "cd :path && :environment_variable=:environment :bundle_command rake :task --silent :output"

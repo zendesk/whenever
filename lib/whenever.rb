@@ -14,19 +14,19 @@ module Whenever
     Whenever::NumericSeconds.seconds(number, units)
   end
 
-  def self.path
-    Dir.pwd
+  def self.path(custom_path = nil)
+    custom_path ? custom_path : Dir.pwd
   end
 
-  def self.bin_rails?
-    File.exists?(File.join(path, 'bin', 'rails'))
+  def self.bin_rails?(custom_path = nil)
+    File.exists?(File.join(path(custom_path), 'bin', 'rails'))
   end
 
-  def self.script_rails?
-    File.exists?(File.join(path, 'script', 'rails'))
+  def self.script_rails?(custom_path = nil)
+    File.exists?(File.join(path(custom_path), 'script', 'rails'))
   end
 
-  def self.bundler?
-    File.exists?(File.join(path, 'Gemfile'))
+  def self.bundler?(custom_path = nil)
+    File.exists?(File.join(path(custom_path), 'Gemfile'))
   end
 end

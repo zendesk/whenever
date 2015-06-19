@@ -1,3 +1,5 @@
+require 'whenever/environment'
+
 module Whenever
   class JobList
     attr_reader :roles
@@ -11,7 +13,7 @@ module Whenever
       end
 
       pre_set(options[:set])
-      environment(options[:env])
+      shell_environment(options[:env])
 
       @roles = options[:roles] || []
 
@@ -87,31 +89,20 @@ module Whenever
     # Only works for setting values as strings.
     #
     def pre_set(variable_string = nil)
-      return if variable_string.nil? || variable_string == ""
-
-      pairs = variable_string.split('&')
-      pairs.each do |pair|
-        next unless pair.index('=')
-        variable, value = *pair.split('=')
-        unless variable.nil? || variable == "" || value.nil? || value == ""
-          variable = variable.strip.to_sym
-          set(variable, value.strip)
-          @pre_set_variables[variable] = value
-        end
+      variables = Whenever::Environment.new(variable_string)
+      
+      variables.each do |variable, value|
+        variable = variable.strip.to_sym
+        set(variable, value.strip)
+        @pre_set_variables[variable] = value
       end
     end
 
-    def environment(environment_string = nil)
-      return if environment_string.nil? || environment_string == ""
-
+    def shell_environment(variable_string = nil)
+      variables = Whenever::Environment.new(variable_string)
       exports = []
-      pairs = environment_string.split('&')
-      pairs.each do |pair|
-        next unless pair.index('=')
-        variable, value = *pair.split('=')
-        unless variable.nil? || variable == "" || value.nil? || value == ""
-          exports << "export #{variable}=#{value.inspect}"
-        end
+      variables.each do |variable, value|
+        exports << "export #{variable}=#{value.inspect}"
       end
       @environment_exports = exports
     end
